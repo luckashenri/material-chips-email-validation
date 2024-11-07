@@ -1,0 +1,42 @@
+<mat-form-field class="example-chip-list">
+  <mat-label>Favorite Fruits</mat-label>
+  <mat-chip-grid #chipGrid aria-label="Enter fruits">
+    @for (fruit of fruits(); track fruit) {
+    <mat-chip-row
+      (removed)="remove(fruit)"
+      [editable]="true"
+      (edited)="edit(fruit, $event)"
+      [aria-description]="'press enter to edit ' + fruit.name"
+    >
+      {{fruit.name}}
+      <button matChipRemove [attr.aria-label]="'remove ' + fruit.name">
+        <mat-icon>cancel</mat-icon>
+      </button>
+    </mat-chip-row>
+    }
+
+    <input
+      name="currentFruit"
+      placeholder="New Fruit..."
+      #fruitInput
+      [(ngModel)]="currentFruit"
+      [matChipInputFor]="chipGrid"
+      [matAutocomplete]="auto"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+      [matChipInputAddOnBlur]="addOnBlur"
+      (matChipInputTokenEnd)="add($event)"
+    />
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      (optionSelected)="selected($event)"
+    >
+      @for (fruit of filteredFruits(); track fruit) {
+      <mat-option [value]="fruit">{{fruit.name}}</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-chip-grid>
+</mat-form-field>
+
+<!-- Copyright 2024 Google LLC. All Rights Reserved.
+    Use of this source code is governed by an MIT-style license that
+    can be found in the LICENSE file at https://angular.io/license -->
