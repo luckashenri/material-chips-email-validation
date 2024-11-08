@@ -15,13 +15,14 @@
         <mat-icon>cancel</mat-icon>
       </button>
     </mat-chip-row>
-    }
+    } 
 
     <input
       name="currentUser"
       placeholder="New User..."
       #userInput
       [(ngModel)]="currentUser"
+      (keydown.enter)="hitEnter()"
       [matChipInputFor]="chipGrid"
       [matAutocomplete]="auto"
       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
@@ -30,10 +31,15 @@
     />
 
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+      @if(ongoinUser) {
+        <mat-option [value]="onChangeOngoingUser">{{onChangeOngoingUser.email}}</mat-option>
+      }
+
       @for (user of filteredUsers(); track user) {
       <mat-option [value]="user">{{user.name}}</mat-option>
       }
     </mat-autocomplete>
+
   </mat-chip-grid>
 </mat-form-field>
 

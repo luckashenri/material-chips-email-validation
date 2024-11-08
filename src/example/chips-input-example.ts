@@ -91,6 +91,11 @@ export class ChipsInputExample {
 
   });
 
+  ongoinUser: User | null = null;
+
+  hitEnter() {
+    console.log('hitEnter');
+  }
 
   add(event: MatChipInputEvent): void {
     console.log('add', event);
@@ -197,6 +202,16 @@ export class ChipsInputExample {
 
     event.option.deselect();
     this.clearText();
+  }
+
+  onChangeOngoingUser(event: any) {
+    console.log('onChangeOngoingUser', event.target.value);
+    const value = event.target.value;
+
+    if (this.ongoinUser == null) this.ongoinUser = {name: '', email: ''};
+
+    this.ongoinUser!.name = value;
+    this.ongoinUser!.email = value;
   }
 
   clearText() {
