@@ -98,7 +98,17 @@ export class ChipsInputExample {
   }
 
   add(event: MatChipInputEvent): void {
-    console.log('add', event);
+    console.log('add', event, this.auto()?.isOpen);
+
+    if (this.auto()?.isOpen && this.filteredUsers().length > 0) {
+      console.log('canceling');
+      return;
+    }
+    // if ((event.value || '').trim() && !this.auto()?.isOpen) {
+    //   this.value.push({
+    //     name: event.value.trim()
+    //   });
+    // }
     
     const value = (event.value || '').trim();
 
@@ -188,16 +198,16 @@ export class ChipsInputExample {
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
-    console.log('selected', event);
+    console.log('selected', event, this.filteredUsers().length);
     
     const user = event.option.value;
 
     console.log('user', user);
-    if (user.email !== user.name) {
-      event.option.deselect();
-      this.clearText();
-      return;
-    }
+    // if (user.email !== user.name) {
+    //   event.option.deselect();
+    //   this.clearText();
+    //   return;
+    // }
 
     if (!user) {
       this.clearText();
