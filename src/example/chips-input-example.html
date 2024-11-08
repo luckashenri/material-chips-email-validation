@@ -3,6 +3,7 @@
   <mat-chip-grid #chipGrid aria-label="Enter users">
     @for (user of users(); track user) {
     <mat-chip-row
+      [ngClass]="{ 'invalid-email shake': !(user.email | isEmailValid)}"
       (removed)="remove(user)"
       [editable]="true"
       (edited)="edit(user, $event)"
@@ -36,6 +37,16 @@
     </mat-autocomplete>
   </mat-chip-grid>
 </mat-form-field>
+
+<br>
+
+<button (click)="clearText()">Clear</button>
+
+<br>
+
+<pre>
+  {{currentUser() | json}}
+</pre>
 
 <br>
 

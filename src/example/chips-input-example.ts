@@ -1,12 +1,13 @@
 import {LiveAnnouncer} from '@angular/cdk/a11y';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
-import {ChangeDetectionStrategy, Component, computed, inject, model, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, computed, inject, model, signal, viewChild} from '@angular/core';
 import {MatChipEditedEvent, MatChipInputEvent, MatChipsModule} from '@angular/material/chips';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {FormsModule} from '@angular/forms';
 import {MatAutocompleteModule, MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import { JsonPipe, NgClass } from '@angular/common';
+import { ValidateEmailPipe } from './validate-email.pipe';
 
 export interface User {
   email: string;
@@ -58,24 +59,37 @@ export const MOCK_USERS = [
     FormsModule,
     MatAutocompleteModule,
     JsonPipe,
+    ValidateEmailPipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChipsInputExample {
+  userInput = viewChild<ElementRef>('userInput')
+
   readonly addOnBlur = false;
 
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
   readonly users = signal<User[]>([]);
   readonly announcer = inject(LiveAnnouncer);
 
-  readonly currentUser = model('');
+  readonly currentUser = model<string | User | null>(null);
 
   readonly allUsers: User[] = MOCK_USERS;
+
   readonly filteredUsers = computed(() => {
-    const currentUser = this.currentUser().toLowerCase();
-    return currentUser
-      ? this.allUsers.filter(user => user.email.includes(currentUser))
-      : this.allUsers.slice();
+
+    const currentUser = this.currentUser();
+
+    if (typeof currentUser === 'string') {
+      console.log('this.allUsers', this.allUsers);
+      
+      return this.allUsers.filter(user => user.name!.toLowerCase().includes(currentUser))
+    } else if (currentUser != null) {
+      return this.allUsers.filter(user => user.email!.toLowerCase().includes(currentUser?.email))
+    } else {
+      return this.allUsers.slice()
+    }
+
   });
 
 
@@ -94,6 +108,8 @@ export class ChipsInputExample {
   }
 
   remove(user: User): void {
+    console.log('remove', user);
+    
     this.users.update(users => {
       const index = users.indexOf(user);
       if (index < 0) {
@@ -107,6 +123,8 @@ export class ChipsInputExample {
   }
 
   edit(user: User, event: MatChipEditedEvent) {
+    console.log('edit', user, event);
+
     const value = event.value.trim();
 
     // Remove user if it no longer has a name
@@ -138,9 +156,25 @@ export class ChipsInputExample {
   selected(event: MatAutocompleteSelectedEvent): void {
     console.log('selected', event);
     
-    this.users.update(users => [...users, this.buildUser(event.option.viewValue)]);
-    this.currentUser.set('');
+    const user = this.allUsers.find(el => el.id === event.option.value?.id);
+
+    console.log('user', user);
+
+    if (!user) {
+      this.clearText();
+      return;
+    }
+
+    this.users.update(users => [...users, user!]);
+
     event.option.deselect();
+    this.clearText();
+  }
+
+  clearText() {
+    console.log('clearText', this.userInput());
+    this.currentUser.set('');
+    this.userInput()!.nativeElement.value = '';
   }
 }
 
