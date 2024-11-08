@@ -234,20 +234,6 @@ export class ChipsInputExample {
     this.clearText();
   }
 
-  addGoodStyleToMatAuto(): void {
-    // setTimeout(() => {
-    //   try {
-    //     const matAuto = document.getElementsByClassName(
-    //       'mat-autocomplete-panel'
-    //     )[0];
-
-    //     console.log('matAuto', matAuto);
-        
-    //     matAuto?.parentElement?.classList.add('auto-class');
-    //   } catch {}
-    // }, 10);
-  }
-
   buildUser(email: string): User {
     console.log('buildUser', email);
 
