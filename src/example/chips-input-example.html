@@ -27,6 +27,8 @@
       [matAutocomplete]="auto"
       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
       [matChipInputAddOnBlur]="addOnBlur"
+      (paste)="paste($event)"
+      (focus)="addGoodStyleToMatAuto()"
       (input)="onChangeOngoingUser($event)"
       (matChipInputTokenEnd)="add($event)"
     />

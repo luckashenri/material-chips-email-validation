@@ -5,7 +5,7 @@ import {MatChipEditedEvent, MatChipInputEvent, MatChipsModule} from '@angular/ma
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {FormsModule} from '@angular/forms';
-import {MatAutocomplete, MatAutocompleteModule, MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
+import {MatAutocomplete, MatAutocompleteModule, MatAutocompleteSelectedEvent, MatAutocompleteTrigger} from '@angular/material/autocomplete';
 import { JsonPipe, NgClass } from '@angular/common';
 import { ValidateEmailPipe } from './validate-email.pipe';
 
@@ -66,6 +66,7 @@ export const MOCK_USERS = [
 export class ChipsInputExample {
   userInput = viewChild<ElementRef>('userInput')
   auto = viewChild<MatAutocomplete>('auto');
+  trigger = viewChild('userInput', {read: MatAutocompleteTrigger});
 
   readonly addOnBlur = false;
 
@@ -91,6 +92,8 @@ export class ChipsInputExample {
 
   });
 
+  // test1@test, test2@test2.com, amanda@waller.com, another@test, john@wick.com
+
   ongoinUser: User | null = null;
 
   hitEnter() {
@@ -101,14 +104,8 @@ export class ChipsInputExample {
     console.log('add', event, this.auto()?.isOpen);
 
     if (this.auto()?.isOpen && this.filteredUsers().length > 0) {
-      console.log('canceling');
       return;
     }
-    // if ((event.value || '').trim() && !this.auto()?.isOpen) {
-    //   this.value.push({
-    //     name: event.value.trim()
-    //   });
-    // }
     
     const value = (event.value || '').trim();
 
@@ -188,26 +185,43 @@ export class ChipsInputExample {
     });
   }
 
-  buildUser(email: string): User {
-    console.log('buildUser', name);
+  paste(event: ClipboardEvent) {
 
-    return {
-      email,
-      name: email
-    }
+    const clipboardData = event.clipboardData || (window as any)?.['clipboardData'];
+    console.log('clipboardData', clipboardData);
+    
+    const pastedText = clipboardData.getData('text');
+    console.log('pastedText', pastedText);
+
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (pastedText == null) return;
+
+    console.log('hasValue', pastedText);
+
+    const fValue = pastedText.split(/[,;]/).map((email: string) => email.trim()).filter((email: string) => email !== '');
+    console.log('fValue', fValue);
+
+    const newUsers = fValue.map((email: string) => this.buildUser(email));
+
+    console.log('newUsers', newUsers);
+    
+    console.log('current users', newUsers);
+    
+    this.users.update((users) => {
+      return [...users, ...newUsers];
+    })
+
+    // Close suggestions dropdown
+    this.trigger()?.closePanel()
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
     console.log('selected', event, this.filteredUsers().length);
     
     const user = event.option.value;
-
     console.log('user', user);
-    // if (user.email !== user.name) {
-    //   event.option.deselect();
-    //   this.clearText();
-    //   return;
-    // }
 
     if (!user) {
       this.clearText();
@@ -218,6 +232,37 @@ export class ChipsInputExample {
 
     event.option.deselect();
     this.clearText();
+  }
+
+  addGoodStyleToMatAuto(): void {
+    // setTimeout(() => {
+    //   try {
+    //     const matAuto = document.getElementsByClassName(
+    //       'mat-autocomplete-panel'
+    //     )[0];
+
+    //     console.log('matAuto', matAuto);
+        
+    //     matAuto?.parentElement?.classList.add('auto-class');
+    //   } catch {}
+    // }, 10);
+  }
+
+  buildUser(email: string): User {
+    console.log('buildUser', email);
+
+    const hasUser = this.allUsers.find(el => el.email === email);
+
+    console.log('hasUser', hasUser);
+
+    if (hasUser) {
+      return hasUser;
+    }
+
+    return {
+      email,
+      name: email
+    }
   }
 
   onChangeOngoingUser(event: any) {

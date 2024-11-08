@@ -78,3 +78,10 @@ html {
   --mdc-chip-elevated-container-color: #f1e0dd;
   border: 1px solid #d82c0c;
 }
+
+.auto-class {
+  width: 100% !important;
+  top: 120px !important;
+  left: 0 !important;
+  transition: 0.2s;
+}
