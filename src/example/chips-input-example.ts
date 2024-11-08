@@ -1,11 +1,11 @@
 import {LiveAnnouncer} from '@angular/cdk/a11y';
-import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {COMMA, ENTER, SEMICOLON} from '@angular/cdk/keycodes';
 import {ChangeDetectionStrategy, Component, ElementRef, computed, inject, model, signal, viewChild} from '@angular/core';
 import {MatChipEditedEvent, MatChipInputEvent, MatChipsModule} from '@angular/material/chips';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {FormsModule} from '@angular/forms';
-import {MatAutocompleteModule, MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
+import {MatAutocomplete, MatAutocompleteModule, MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import { JsonPipe, NgClass } from '@angular/common';
 import { ValidateEmailPipe } from './validate-email.pipe';
 
@@ -65,10 +65,11 @@ export const MOCK_USERS = [
 })
 export class ChipsInputExample {
   userInput = viewChild<ElementRef>('userInput')
+  auto = viewChild<MatAutocomplete>('auto');
 
   readonly addOnBlur = false;
 
-  readonly separatorKeysCodes = [ENTER, COMMA] as const;
+  readonly separatorKeysCodes = [ENTER, COMMA, SEMICOLON] as const;
   readonly users = signal<User[]>([]);
   readonly announcer = inject(LiveAnnouncer);
 
@@ -80,10 +81,8 @@ export class ChipsInputExample {
 
     const currentUser = this.currentUser();
 
-    if (typeof currentUser === 'string') {
-      console.log('this.allUsers', this.allUsers);
-      
-      return this.allUsers.filter(user => user.name!.toLowerCase().includes(currentUser))
+    if (typeof currentUser === 'string') {      
+      return this.allUsers.filter(user => user.name!.toLowerCase().includes(currentUser) || user.email!.toLowerCase().includes(currentUser))
     } else if (currentUser != null) {
       return this.allUsers.filter(user => user.email!.toLowerCase().includes(currentUser?.email))
     } else {
@@ -98,18 +97,31 @@ export class ChipsInputExample {
     
     const value = (event.value || '').trim();
 
-    // Add our user
+    const hasUserOption = this.allUsers.find(el => el.email === value);
+    console.log('hasUserOption', hasUserOption);
+
+    if (hasUserOption) {
+      console.log('here');
+      this.users.update(users => [...users, hasUserOption]);
+      
+      event.chipInput!.clear();
+      this.clearText();
+      return;
+    }
+
+    // Add  user
     if (value) {
       this.users.update(users => [...users, this.buildUser(value)]);
     }
 
     // Clear the input value
     event.chipInput!.clear();
+    this.clearText();
   }
 
   remove(user: User): void {
     console.log('remove', user);
-    
+
     this.users.update(users => {
       const index = users.indexOf(user);
       if (index < 0) {
@@ -136,10 +148,26 @@ export class ChipsInputExample {
     // Edit existing user
     this.users.update(users => {
       const index = users.indexOf(user);
+
+      const hasUserOption = this.auto()?.options.find(el => el.value.email === value);
+      console.log('hasUserOption', hasUserOption);
+
+  
+      if (user.id == null && hasUserOption) {
+        console.log('here');
+        users[index] = hasUserOption.value;
+        
+        hasUserOption.select();
+        return users;
+      }
+
       if (index >= 0) {
         users[index].name = value;
+        users[index].email = value;
+
         return [...users];
       }
+
       return users;
     });
   }
@@ -173,11 +201,10 @@ export class ChipsInputExample {
 
   clearText() {
     console.log('clearText', this.userInput());
-    this.currentUser.set('');
     this.userInput()!.nativeElement.value = '';
+    this.currentUser.set(null);
   }
 }
-
 
 /**  Copyright 2024 Google LLC. All Rights Reserved.
     Use of this source code is governed by an MIT-style license that

@@ -5,11 +5,12 @@
     <mat-chip-row
       [ngClass]="{ 'invalid-email shake': !(user.email | isEmailValid)}"
       (removed)="remove(user)"
-      [editable]="true"
+      [editable]="user.id == null"
       (edited)="edit(user, $event)"
-      [aria-description]="'press enter to edit ' + user.name"
-    >
+      [aria-description]="'press enter to edit ' + user.name">
+
       {{user.name}}
+      
       <button matChipRemove [attr.aria-label]="'remove ' + user.name">
         <mat-icon>cancel</mat-icon>
       </button>
@@ -27,10 +28,8 @@
       [matChipInputAddOnBlur]="addOnBlur"
       (matChipInputTokenEnd)="add($event)"
     />
-    <mat-autocomplete
-      #auto="matAutocomplete"
-      (optionSelected)="selected($event)"
-    >
+
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
       @for (user of filteredUsers(); track user) {
       <mat-option [value]="user">{{user.name}}</mat-option>
       }
