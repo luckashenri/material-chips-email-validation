@@ -1,25 +1,25 @@
 <mat-form-field class="example-chip-list">
-  <mat-label>Favorite Fruits</mat-label>
-  <mat-chip-grid #chipGrid aria-label="Enter fruits">
-    @for (fruit of fruits(); track fruit) {
+  <mat-label>Favorite Users</mat-label>
+  <mat-chip-grid #chipGrid aria-label="Enter users">
+    @for (user of users(); track user) {
     <mat-chip-row
-      (removed)="remove(fruit)"
+      (removed)="remove(user)"
       [editable]="true"
-      (edited)="edit(fruit, $event)"
-      [aria-description]="'press enter to edit ' + fruit.name"
+      (edited)="edit(user, $event)"
+      [aria-description]="'press enter to edit ' + user.name"
     >
-      {{fruit.name}}
-      <button matChipRemove [attr.aria-label]="'remove ' + fruit.name">
+      {{user.name}}
+      <button matChipRemove [attr.aria-label]="'remove ' + user.name">
         <mat-icon>cancel</mat-icon>
       </button>
     </mat-chip-row>
     }
 
     <input
-      name="currentFruit"
-      placeholder="New Fruit..."
-      #fruitInput
-      [(ngModel)]="currentFruit"
+      name="currentUser"
+      placeholder="New User..."
+      #userInput
+      [(ngModel)]="currentUser"
       [matChipInputFor]="chipGrid"
       [matAutocomplete]="auto"
       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
@@ -30,12 +30,18 @@
       #auto="matAutocomplete"
       (optionSelected)="selected($event)"
     >
-      @for (fruit of filteredFruits(); track fruit) {
-      <mat-option [value]="fruit">{{fruit.name}}</mat-option>
+      @for (user of filteredUsers(); track user) {
+      <mat-option [value]="user">{{user.name}}</mat-option>
       }
     </mat-autocomplete>
   </mat-chip-grid>
 </mat-form-field>
+
+<br>
+
+<pre>
+  {{users() | json}}
+</pre>
 
 <!-- Copyright 2024 Google LLC. All Rights Reserved.
     Use of this source code is governed by an MIT-style license that
