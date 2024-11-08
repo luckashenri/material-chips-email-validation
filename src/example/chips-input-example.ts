@@ -107,7 +107,7 @@ export class ChipsInputExample {
 
     if (hasUserOption) {
       console.log('here');
-      this.users.update(users => [...users, hasUserOption]);
+      this.users.update(users => [...users, structuredClone(hasUserOption)]);
       
       event.chipInput!.clear();
       this.clearText();
@@ -160,9 +160,10 @@ export class ChipsInputExample {
   
       if (user.id == null && hasUserOption) {
         console.log('here');
-        users[index] = hasUserOption.value;
+        users[index] = structuredClone(hasUserOption.value);
         
         hasUserOption.select();
+        hasUserOption.deselect();
         return users;
       }
 
@@ -189,16 +190,21 @@ export class ChipsInputExample {
   selected(event: MatAutocompleteSelectedEvent): void {
     console.log('selected', event);
     
-    const user = this.allUsers.find(el => el.id === event.option.value?.id);
+    const user = event.option.value;
 
     console.log('user', user);
+    if (user.email !== user.name) {
+      event.option.deselect();
+      this.clearText();
+      return;
+    }
 
     if (!user) {
       this.clearText();
       return;
     }
 
-    this.users.update(users => [...users, user!]);
+    this.users.update(users => [...users, structuredClone(user)!]);
 
     event.option.deselect();
     this.clearText();

@@ -27,12 +27,13 @@
       [matAutocomplete]="auto"
       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
       [matChipInputAddOnBlur]="addOnBlur"
+      (input)="onChangeOngoingUser($event)"
       (matChipInputTokenEnd)="add($event)"
     />
 
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-      @if(ongoinUser) {
-        <mat-option [value]="onChangeOngoingUser">{{onChangeOngoingUser.email}}</mat-option>
+      @if(ongoinUser && currentUser() !== null && currentUser() != '') {
+        <mat-option [value]="ongoinUser">Add "{{ongoinUser.email}}"</mat-option>
       }
 
       @for (user of filteredUsers(); track user) {
